@@ -1,0 +1,21 @@
+{
+    "settings" : {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+        "fim": {
+            "properties": {
+                "file.path": {
+                    "type": "keyword"
+                },
+                "file.size": {
+                    "type": "long"
+                },
+                "hash.sha512": {
+                    "type": "keyword"
+                }
+            }
+        }
+    }
+}
