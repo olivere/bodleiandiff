@@ -15,6 +15,8 @@ type Client interface {
 type IterateRequest struct {
 	SortField string
 	RawQuery  string
+	Includes  []string
+	Excludes  []string
 }
 
 // ClientWithBatchSize should be implemented by clients that

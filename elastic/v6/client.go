@@ -107,6 +107,12 @@ func (c *Client) Iterate(ctx context.Context, req *elastic.IterateRequest) (<-ch
 			q := elasticv6.NewRawStringQuery(req.RawQuery)
 			svc = svc.Query(q)
 		}
+		if len(req.Includes)+len(req.Excludes) > 0 {
+			fsc := elasticv6.NewFetchSourceContext(true).
+				Include(req.Includes...).
+				Exclude(req.Excludes...)
+			svc = svc.FetchSourceContext(fsc)
+		}
 
 		for {
 			res, err := svc.Do(ctx)

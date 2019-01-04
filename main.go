@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
@@ -24,6 +25,8 @@ func main() {
 		sortField    = flag.String("sort", "file.path", `Sort field, e.g. "_id", "file.path" or "-price" (descending)`)
 		rawSrcQuery  = flag.String("src-query", "", `Raw query for filtering the source, e.g. {"term":{"user":"olivere"}}`)
 		rawDstQuery  = flag.String("dst-query", "", `Raw query for filtering the destination, e.g. {"term":{"user":"olivere"}}`)
+		include      = flag.String("include", "", `Raw source filter for including certain fields from the source, e.g. "obj.*"`)
+		exclude      = flag.String("exclude", "", `Raw source filter for excluding certain fields from the source, e.g. "hash_value,sub.*"`)
 		unchanged    = flag.Bool("u", false, `Print unchanged docs`)
 		updated      = flag.Bool("c", true, `Print changed docs`)
 		changed      = flag.Bool("a", true, `Print added docs`)
@@ -39,6 +42,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	var includes []string
+	if *include != "" {
+		includes = strings.Split(*include, ",")
+	}
+	var excludes []string
+	if *exclude != "" {
+		excludes = strings.Split(*exclude, ",")
+	}
+
 	options := []elastic.ClientOption{
 		elastic.WithBatchSize(*size),
 	}
@@ -50,6 +62,8 @@ func main() {
 	srcIterReq := &elastic.IterateRequest{
 		RawQuery:  *rawSrcQuery,
 		SortField: *sortField,
+		Includes:  includes,
+		Excludes:  excludes,
 	}
 
 	dst, err := newClient(flag.Arg(1), options...)
@@ -59,6 +73,8 @@ func main() {
 	dstIterReq := &elastic.IterateRequest{
 		RawQuery:  *rawDstQuery,
 		SortField: *sortField,
+		Includes:  includes,
+		Excludes:  excludes,
 	}
 
 	var p printer.Printer
