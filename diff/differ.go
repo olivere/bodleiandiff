@@ -8,9 +8,10 @@ import (
 
 // Document is a document retrieved from Elasticsearch.
 type Document struct {
-	ID     string                 `json:"_id,omitempty"`
-	Key    string                 `json:"-"` // used for comparing in Diff
-	Source map[string]interface{} `json:"_source,omitempty"`
+	ID        string                 `json:"_id,omitempty"`
+	Key       string                 `json:"-"` // used for comparing in Diff
+	Source    map[string]interface{} `json:"_source,omitempty"`
+	Timestamp interface{}            `json:"@timestamp,omitempty"`
 }
 
 // Mode describes the outcome of comparing two documents.
@@ -179,6 +180,7 @@ func Differ(
 							break
 						}
 						diffCh <- Diff{Mode: Created, Dst: dstDoc}
+						dstDoc = nil
 					case <-ctx.Done():
 						errCh <- ctx.Err()
 						return
@@ -201,6 +203,7 @@ func Differ(
 							break
 						}
 						diffCh <- Diff{Mode: Deleted, Src: srcDoc}
+						srcDoc = nil
 					case <-ctx.Done():
 						errCh <- ctx.Err()
 						return
